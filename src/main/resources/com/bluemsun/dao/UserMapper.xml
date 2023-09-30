@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bluemsun.dao.UserDao">
+    <cache type="com.bluemsun.util.RedisMybatisCache"/>
+    <insert id="insertUser" parameterType="com.bluemsun.entity.User"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (username, password)
+        VALUES (#{username}, #{password})
+    </insert>
+
+    <delete id="deleteUser" parameterType="int">
+        DELETE FROM users where id = #{id}
+    </delete>
+
+    <select id="getUser" resultType="com.bluemsun.entity.User" parameterType="com.bluemsun.entity.User">
+        SELECT * FROM users WHERE
+            <choose>
+                <when test="username != null and password != null">
+                    BINARY username = #{username} AND BINARY password = #{password}
+                </when>
+                <when test="id != null">
+                    id = #{id}
+                </when>
+                <otherwise>
+                    1 = 1
+                </otherwise>
+            </choose>
+    </select>
+
+    <select id="isExist" resultType="com.bluemsun.entity.User">
+        SELECT id FROM users WHERE username = #{username} LIMIT 1
+    </select>
+</mapper>
