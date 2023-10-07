@@ -1,6 +1,7 @@
 package com.bluemsun.service;
 
 import com.bluemsun.dao.UserDao;
+import com.bluemsun.entity.Page;
 import com.bluemsun.entity.User;
 import com.bluemsun.util.IPasswordChecker;
 import org.springframework.stereotype.Service;
@@ -38,5 +39,13 @@ public class UserService
     public User info(int userId) {
         User user =  userDao.getUserById(userId);
         return user;
+    }
+
+    public int getAmount() {
+        return userDao.getAmount();
+    }
+
+    public void getPage(Page<User> page) {
+        page.list = userDao.getUsersInPage(page.getStartIndex(),page.getPageSize());
     }
 }

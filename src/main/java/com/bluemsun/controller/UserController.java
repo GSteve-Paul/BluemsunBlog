@@ -1,6 +1,7 @@
 package com.bluemsun.controller;
 
 import com.bluemsun.entity.JsonResponse;
+import com.bluemsun.entity.Page;
 import com.bluemsun.entity.User;
 import com.bluemsun.interceptor.LoginChecker;
 import com.bluemsun.interceptor.RegisterChecker;
@@ -76,12 +77,25 @@ public class UserController
 
     @GetMapping("/info")
     public JsonResponse info(HttpSession session) {
-        int userId = (int)session.getAttribute("userId");
+        int userId = (int) session.getAttribute("userId");
         User user = userService.info(userId);
         JsonResponse jsonResponse = new JsonResponse();
         jsonResponse.setCode(2000);
         jsonResponse.setMessage("Get info successfully");
         jsonResponse.setData(user);
         return jsonResponse;
+    }
+
+    @GetMapping("/amount")
+    public JsonResponse getAmount() {
+        int amount = userService.getAmount();
+        return new JsonResponse(2000, "获取成功", amount);
+    }
+
+    @GetMapping("/page")
+    public JsonResponse getPage(@RequestBody Page<User> page) {
+        page.init();
+        userService.getPage(page);
+        return new JsonResponse(2000, "获取成功", page.list);
     }
 }

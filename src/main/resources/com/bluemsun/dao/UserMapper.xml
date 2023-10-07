@@ -32,4 +32,12 @@
     <select id="isExist" resultType="com.bluemsun.entity.User">
         SELECT id FROM users WHERE username = #{username} LIMIT 1
     </select>
+
+    <select id="getAmount" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM users
+    </select>
+
+    <select id="getUsersInPage" resultType="com.bluemsun.entity.User">
+        SELECT * FROM users LIMIT #{start},#{len}
+    </select>
 </mapper>
