@@ -15,6 +15,10 @@ import javax.servlet.http.HttpSession;
 @RequestMapping("/user")
 public class UserController
 {
+    private int getUserId(HttpSession session) {
+        return (int) session.getAttribute("userId");
+    }
+
     @Resource
     UserService userService;
 
@@ -76,8 +80,8 @@ public class UserController
     }
 
     @GetMapping("/info")
-    public JsonResponse info(HttpSession session) {
-        int userId = (int) session.getAttribute("userId");
+    public JsonResponse getInfo(HttpSession session) {
+        int userId = getUserId(session);
         User user = userService.info(userId);
         JsonResponse jsonResponse = new JsonResponse();
         jsonResponse.setCode(2000);
@@ -97,5 +101,17 @@ public class UserController
         page.init();
         userService.getPage(page);
         return new JsonResponse(2000, "获取成功", page.list);
+    }
+
+    @PutMapping("/info")
+    @RegisterChecker
+    public JsonResponse updateInfo(@RequestBody User user, HttpSession session) {
+        int userId = getUserId(session);
+        Integer res = userService.updateInfo(user, userId);
+        if (0 == res) {
+            return new JsonResponse(2000, "修改成功");
+        } else {
+            return new JsonResponse(2001, "修改失败");
+        }
     }
 }

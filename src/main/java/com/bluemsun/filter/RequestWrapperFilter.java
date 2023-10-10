@@ -10,8 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebFilter({
-        "/user/login",
-        "/user/register"
+        "/user/*"
 })
 @Order(2)
 

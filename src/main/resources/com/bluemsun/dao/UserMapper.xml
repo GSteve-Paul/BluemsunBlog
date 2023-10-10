@@ -10,6 +10,14 @@
         VALUES (#{username}, #{password})
     </insert>
 
+    <update id="updateUsername">
+        UPDATE users SET username = #{username} WHERE id = #{id}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE users SET password = #{password} WHERE id = #{id}
+    </update>
+
     <delete id="deleteUser" parameterType="int">
         DELETE FROM users where id = #{id}
     </delete>
@@ -30,7 +38,7 @@
     </select>
 
     <select id="isExist" resultType="com.bluemsun.entity.User">
-        SELECT id FROM users WHERE username = #{username} LIMIT 1
+        SELECT id FROM users WHERE BINARY username = #{username} LIMIT 1
     </select>
 
     <select id="getAmount" resultType="java.lang.Integer">

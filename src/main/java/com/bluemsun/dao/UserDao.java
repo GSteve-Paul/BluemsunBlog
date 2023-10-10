@@ -29,4 +29,8 @@ public interface UserDao
     int getAmount();
 
     List<User> getUsersInPage(int start, int len);
+
+    int updateUsername(String username, int id);
+
+    int updatePassword(String password, int id);
 }

@@ -5,6 +5,7 @@ import com.bluemsun.entity.Page;
 import com.bluemsun.entity.User;
 import com.bluemsun.util.IPasswordChecker;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -47,5 +48,26 @@ public class UserService
 
     public void getPage(Page<User> page) {
         page.list = userDao.getUsersInPage(page.getStartIndex(),page.getPageSize());
+    }
+
+    @Transactional
+    public Integer updateInfo(User user,int userId) {
+        String username = user.getUsername();
+        String password = user.getPassword();
+        int ans = 0;
+        int result;
+        if(userDao.isExist(username) != null) {
+            throw new RuntimeException("该用户名已存在");
+        }
+
+        result = userDao.updateUsername(username,userId);
+        if(result != 1) {
+            throw new RuntimeException("username戳啦");
+        }
+        result = userDao.updatePassword(password,userId);
+        if(result != 1) {
+            throw new RuntimeException("password戳啦");
+        }
+        return ans;
     }
 }
