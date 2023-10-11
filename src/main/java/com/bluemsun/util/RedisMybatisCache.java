@@ -15,7 +15,6 @@ public class RedisMybatisCache implements Cache
 {
 
     private final String id;
-
     private static RedisTemplate<Object, Object> template;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 

@@ -46,6 +46,6 @@
     </select>
 
     <select id="getUsersInPage" resultType="com.bluemsun.entity.User">
-        SELECT * FROM users LIMIT #{start},#{len}
+        SELECT username FROM users LIMIT #{start},#{len}
     </select>
 </mapper>

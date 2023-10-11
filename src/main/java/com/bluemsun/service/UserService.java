@@ -4,6 +4,8 @@ import com.bluemsun.dao.UserDao;
 import com.bluemsun.entity.Page;
 import com.bluemsun.entity.User;
 import com.bluemsun.util.IPasswordChecker;
+import com.bluemsun.util.JWTUtil;
+import io.jsonwebtoken.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,9 @@ public class UserService
 {
     @Resource
     UserDao userDao;
+
+    @Resource
+    JWTUtil jwtUtil;
 
     public int register(User user) {
         String username = user.getUsername();
@@ -30,11 +35,18 @@ public class UserService
         }
     }
 
-    public User login(User user) {
+    public String login(User user) {
         String username = user.getUsername();
         String password = user.getPassword();
         user = userDao.getUserByUsernameAndPassword(username, password);
-        return user;
+        if(user == null) {
+            return null;
+        }
+        return jwtUtil.createToken(username);
+    }
+
+    public void logout(String token) {
+        jwtUtil.deleteToken(token);
     }
 
     public User info(int userId) {

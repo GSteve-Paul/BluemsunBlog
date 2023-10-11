@@ -57,15 +57,14 @@ public class UserController
 
     @PostMapping("/login")
     @LoginChecker
-    public JsonResponse login(@RequestBody User user, HttpSession session) {
+    public JsonResponse login(@RequestBody User user) {
         JsonResponse jsonResponse = new JsonResponse();
-        user = userService.login(user);
+        String token = userService.login(user);
 
-        if (user != null) {
+        if (token != null) {
             jsonResponse.setCode(2000);
             jsonResponse.setMessage("Login successfully");
-            jsonResponse.setData(user);
-            session.setAttribute("userId", user.getId());
+            jsonResponse.setData(token);
         } else {
             jsonResponse.setCode(2002);
             jsonResponse.setMessage("Login failed");
@@ -74,8 +73,8 @@ public class UserController
     }
 
     @DeleteMapping("/logout")
-    public JsonResponse logout(HttpSession session) {
-        session.removeAttribute("userId");
+    public JsonResponse logout(@RequestBody String token) {
+        userService.logout(token);
         return new JsonResponse(2000, "Logout successfully");
     }
 
