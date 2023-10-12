@@ -4,48 +4,51 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.bluemsun.dao.UserDao">
     <cache type="com.bluemsun.util.RedisMybatisCache"/>
+    <!-- crud -->
     <insert id="insertUser" parameterType="com.bluemsun.entity.User"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO users (username, password)
-        VALUES (#{username}, #{password})
+        INSERT INTO user (name, pwd, phone, uuid)
+        VALUES (#{name}, #{pwd}, #{phone}, #{uuid})
     </insert>
-
-    <update id="updateUsername">
-        UPDATE users SET username = #{username} WHERE id = #{id}
+    <update id="updateUser" parameterType="com.bluemsun.entity.User">
+        UPDATE user
+        SET name  = #{name},
+            pwd   = #{pwd},
+            photo = #{photo},
+            phone = #{phone}
+        WHERE id = #{id}
     </update>
-
-    <update id="updatePassword">
-        UPDATE users SET password = #{password} WHERE id = #{id}
-    </update>
-
     <delete id="deleteUser" parameterType="int">
-        DELETE FROM users where id = #{id}
+        DELETE
+        FROM user
+        where id = #{id}
     </delete>
-
-    <select id="getUser" resultType="com.bluemsun.entity.User" parameterType="com.bluemsun.entity.User">
-        SELECT * FROM users WHERE
-            <choose>
-                <when test="username != null and password != null">
-                    BINARY username = #{username} AND BINARY password = #{password}
-                </when>
-                <when test="id != null">
-                    id = #{id}
-                </when>
-                <otherwise>
-                    1 = 1
-                </otherwise>
-            </choose>
+    <select id="getUser" resultType="com.bluemsun.entity.User"
+            parameterType="com.bluemsun.entity.User">
+        SELECT name,pwd,phone,photo,banned,uuid,id FROM user WHERE
+        <choose>
+            <when test="uuid != null and pwd != null">
+                uuid = #{uuid} AND BINARY pwd = #{pwd}
+            </when>
+            <when test="uuid != null">
+                uuid = #{uuid}
+            </when>
+            <when test="id != null">
+                id = #{id}
+            </when>
+            <otherwise>
+                1 = 1
+            </otherwise>
+        </choose>
     </select>
-
-    <select id="isExist" resultType="com.bluemsun.entity.User">
-        SELECT id FROM users WHERE BINARY username = #{username} LIMIT 1
-    </select>
-
+    <!-- user page -->
     <select id="getAmount" resultType="java.lang.Integer">
-        SELECT COUNT(id) FROM users
+        SELECT COUNT(id)
+        FROM user
     </select>
-
     <select id="getUsersInPage" resultType="com.bluemsun.entity.User">
-        SELECT username FROM users LIMIT #{start},#{len}
+        SELECT name, phone, photo, banned, uuid, id
+        FROM user
+        LIMIT #{start},#{len}
     </select>
 </mapper>

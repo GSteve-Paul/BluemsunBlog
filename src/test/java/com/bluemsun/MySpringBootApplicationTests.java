@@ -1,8 +1,6 @@
 package com.bluemsun;
 
-import com.bluemsun.entity.User;
 import com.bluemsun.service.RedisService;
-import com.bluemsun.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -16,7 +14,7 @@ class MySpringBootApplicationTests
 
     @Test
     void contextLoads() {
-        redisService.save("monkey","mm");
+        redisService.save("monkey", "mm");
         System.out.println(redisService.query("monkey"));
     }
 }

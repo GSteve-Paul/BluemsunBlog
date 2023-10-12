@@ -3,55 +3,63 @@ package com.bluemsun.service;
 import com.bluemsun.dao.UserDao;
 import com.bluemsun.entity.Page;
 import com.bluemsun.entity.User;
-import com.bluemsun.util.IPasswordChecker;
 import com.bluemsun.util.JWTUtil;
-import io.jsonwebtoken.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 @Service
 public class UserService
 {
     @Resource
     UserDao userDao;
-
     @Resource
     JWTUtil jwtUtil;
 
-    public int register(User user) {
-        String username = user.getUsername();
-        String password = user.getPassword();
-        if (userDao.isExist(username) != null) {
-            return 2;
+    public Long getIdFromUuid(Long uuid) {
+        return userDao.getIdByUuid(uuid);
+    }
+
+    public Long getIdFromToken(String token) {
+        return getIdFromUuid(jwtUtil.getUuid(token));
+    }
+
+    public Long register(String name, String pwd, Long phone) {
+        User user = new User(phone, name, pwd);
+        Long uuid = user.getUuid();
+        if (userDao.getIdByUuid(uuid) != null) {
+            return 0L;
         }
-        user = new User(username, password);
-        if (userDao.insertUser(user) == 1) {
-            return 0;
+        Long id = userDao.insertUser(user);
+        if (id == 0) {
+            return 0L;
         } else {
-            return 1;
+            return uuid;
         }
     }
 
-    public String login(User user) {
-        String username = user.getUsername();
-        String password = user.getPassword();
-        user = userDao.getUserByUsernameAndPassword(username, password);
-        if(user == null) {
+    public String login(Long uuid, String pwd) {
+        User user = userDao.getUserByUUIDAndPassword(uuid, pwd);
+        if (user == null) {
             return null;
         }
-        return jwtUtil.createToken(username);
+        return jwtUtil.createToken(uuid, "user");
     }
 
     public void logout(String token) {
         jwtUtil.deleteToken(token);
     }
 
-    public User info(int userId) {
-        User user =  userDao.getUserById(userId);
+    public User getInfo(Long userId, Boolean keepPwd) {
+        User user = userDao.getUserById(userId);
+        if (!keepPwd) {
+            user.setPwd(null);
+        }
         return user;
+    }
+
+    public int updateInfo(User user) {
+        return userDao.updateUser(user);
     }
 
     public int getAmount() {
@@ -59,27 +67,6 @@ public class UserService
     }
 
     public void getPage(Page<User> page) {
-        page.list = userDao.getUsersInPage(page.getStartIndex(),page.getPageSize());
-    }
-
-    @Transactional
-    public Integer updateInfo(User user,int userId) {
-        String username = user.getUsername();
-        String password = user.getPassword();
-        int ans = 0;
-        int result;
-        if(userDao.isExist(username) != null) {
-            throw new RuntimeException("该用户名已存在");
-        }
-
-        result = userDao.updateUsername(username,userId);
-        if(result != 1) {
-            throw new RuntimeException("username戳啦");
-        }
-        result = userDao.updatePassword(password,userId);
-        if(result != 1) {
-            throw new RuntimeException("password戳啦");
-        }
-        return ans;
+        page.list = userDao.getUsersInPage(page.getStartIndex(), page.getPageSize());
     }
 }

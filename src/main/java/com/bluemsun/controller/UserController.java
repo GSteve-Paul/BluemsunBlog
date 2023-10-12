@@ -5,52 +5,32 @@ import com.bluemsun.entity.Page;
 import com.bluemsun.entity.User;
 import com.bluemsun.interceptor.LoginChecker;
 import com.bluemsun.interceptor.RegisterChecker;
+import com.bluemsun.interceptor.TokenChecker;
 import com.bluemsun.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/user")
 public class UserController
 {
-    private int getUserId(HttpSession session) {
-        return (int) session.getAttribute("userId");
-    }
-
     @Resource
     UserService userService;
-
-    @GetMapping("/status")
-    public JsonResponse status(HttpSession session) {
-        JsonResponse jsonResponse = new JsonResponse();
-        try {
-            int userId = (int) session.getAttribute("userId");
-            jsonResponse.setData(userId);
-            jsonResponse.setCode(2000);
-            jsonResponse.setMessage("Success");
-        } catch (NullPointerException e) {
-            jsonResponse.setData(null);
-            jsonResponse.setCode(2001);
-            jsonResponse.setMessage("No login");
-        }
-        return jsonResponse;
-    }
 
     @PostMapping("/register")
     @RegisterChecker
     public JsonResponse register(@RequestBody User user) {
         JsonResponse jsonResponse = new JsonResponse();
-        int val = userService.register(user);
-        jsonResponse.setCode(2000 + val);
-        switch (val) {
-            case 0: jsonResponse.setMessage("Register successfully");
-                break;
-            case 1: jsonResponse.setMessage("Unknown error");
-                break;
-            case 2: jsonResponse.setMessage("The username already exists");
-                break;
+        Long uuid = userService.register(user.getName(), user.getPwd(), user.getPhone());
+        if (uuid == 0L) {
+            jsonResponse.setCode(2001);
+            jsonResponse.setMessage("register fail");
+            jsonResponse.setData("");
+        } else {
+            jsonResponse.setCode(2000);
+            jsonResponse.setMessage("register successfully");
+            jsonResponse.setData(uuid);
         }
         return jsonResponse;
     }
@@ -59,7 +39,7 @@ public class UserController
     @LoginChecker
     public JsonResponse login(@RequestBody User user) {
         JsonResponse jsonResponse = new JsonResponse();
-        String token = userService.login(user);
+        String token = userService.login(user.getUuid(), user.getPwd());
 
         if (token != null) {
             jsonResponse.setCode(2000);
@@ -79,9 +59,10 @@ public class UserController
     }
 
     @GetMapping("/info")
-    public JsonResponse getInfo(HttpSession session) {
-        int userId = getUserId(session);
-        User user = userService.info(userId);
+    @TokenChecker({"user"})
+    public JsonResponse getInfo(@RequestBody String token) {
+        Long userId = userService.getIdFromToken(token);
+        User user = userService.getInfo(userId, false);
         JsonResponse jsonResponse = new JsonResponse();
         jsonResponse.setCode(2000);
         jsonResponse.setMessage("Get info successfully");
@@ -89,28 +70,33 @@ public class UserController
         return jsonResponse;
     }
 
+    @PutMapping("/info")
+    @RegisterChecker
+    @TokenChecker("user")
+    public JsonResponse putInfo(@RequestBody String token, @RequestBody User user) {
+        Long userId = userService.getIdFromToken(token);
+        user.setId(userId);
+        int val = userService.updateInfo(user);
+        JsonResponse jsonResponse = new JsonResponse(2000, "update successfully", null);
+        if (val == 0) {
+            jsonResponse = new JsonResponse(2001, "unknown error", null);
+        }
+        return jsonResponse;
+    }
+
     @GetMapping("/amount")
+    @TokenChecker({"user", "admin"})
     public JsonResponse getAmount() {
         int amount = userService.getAmount();
         return new JsonResponse(2000, "获取成功", amount);
     }
 
     @GetMapping("/page")
+    @TokenChecker({"user", "admin"})
     public JsonResponse getPage(@RequestBody Page<User> page) {
         page.init();
         userService.getPage(page);
         return new JsonResponse(2000, "获取成功", page.list);
     }
 
-    @PutMapping("/info")
-    @RegisterChecker
-    public JsonResponse updateInfo(@RequestBody User user, HttpSession session) {
-        int userId = getUserId(session);
-        Integer res = userService.updateInfo(user, userId);
-        if (0 == res) {
-            return new JsonResponse(2000, "修改成功");
-        } else {
-            return new JsonResponse(2001, "修改失败");
-        }
-    }
 }

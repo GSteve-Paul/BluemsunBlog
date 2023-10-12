@@ -9,13 +9,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebFilter({
-        "/user/*"
-})
+@WebFilter("/*")
 @Order(2)
 
 public class RequestWrapperFilter implements Filter
 {
+    String[] ignore = new String[]{"file"};
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -26,6 +25,12 @@ public class RequestWrapperFilter implements Filter
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         HttpServletResponse resp = (HttpServletResponse) servletResponse;
+        for (String s : ignore) {
+            if (req.getRequestURI().split("/")[1].equals(s)) {
+                filterChain.doFilter(req, resp);
+                return;
+            }
+        }
         ServletRequest requestWrapper = new RequestWrapper(req);
         filterChain.doFilter(requestWrapper, resp);
     }

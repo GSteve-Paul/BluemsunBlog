@@ -5,6 +5,10 @@ import java.util.List;
 public class Page<T>
 {
     /**
+     * 用于存放数据库中的数据结果集,使用泛型，增强通用性
+     */
+    public List<T> list;
+    /**
      * 当前是第几页
      */
     private int currentPage;
@@ -17,13 +21,23 @@ public class Page<T>
      */
     private int totalRecord;
     /**
-     * 用于存放数据库中的数据结果集,使用泛型，增强通用性
-     */
-    public List<T> list;
-    /**
      * 总共页数
      */
     private int totalPage;
+    /**
+     * 数据记录起始位置
+     */
+    private int startIndex;
+
+    public Page() {}
+
+    public Page(int currentPage, int pageSize, int totalRecord) {
+        this.currentPage = currentPage;
+        this.pageSize = pageSize;
+        this.totalRecord = totalRecord;
+
+        init();
+    }
 
     public int getCurrentPage() {
         return currentPage;
@@ -43,21 +57,6 @@ public class Page<T>
 
     public int getStartIndex() {
         return startIndex;
-    }
-
-    /**
-     * 数据记录起始位置
-     */
-    private int startIndex;
-
-    public Page() {}
-
-    public Page(int currentPage, int pageSize, int totalRecord) {
-        this.currentPage = currentPage;
-        this.pageSize = pageSize;
-        this.totalRecord = totalRecord;
-
-        init();
     }
 
     public void init() {

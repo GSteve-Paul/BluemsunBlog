@@ -36,4 +36,13 @@ public interface IPasswordChecker
         }
         return ans;
     }
+
+    static boolean isTooLong(String... strs) {
+        for (String str : strs) {
+            if (str.length() > 20) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

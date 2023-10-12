@@ -1,8 +1,8 @@
 package com.bluemsun.interceptor;
 
 import com.bluemsun.entity.JsonResponse;
-import com.bluemsun.entity.User;
 import com.bluemsun.util.IPasswordChecker;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -18,24 +18,27 @@ public class LoginInterceptor implements HandlerInterceptor
 {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if(handler instanceof HandlerMethod) {
+        if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
-            if(null != handlerMethod.getMethod().getAnnotation(LoginChecker.class)) {
+            if (null != handlerMethod.getMethod().getAnnotation(LoginChecker.class)) {
                 InputStream inputStream = request.getInputStream();
                 ObjectMapper objectMapper = new ObjectMapper();
-                User user = objectMapper.readValue(inputStream,User.class);
-                String username = user.getUsername();
-                String password = user.getPassword();
+                JsonNode jsonNode = objectMapper.readTree(inputStream);
+                String pwd = jsonNode.get("pwd").asText();
                 JsonResponse jsonResponse = new JsonResponse();
-                if (IPasswordChecker.isEmpty(password, username)) {
+                if (IPasswordChecker.isEmpty(pwd)) {
                     jsonResponse.setCode(2011);
                     jsonResponse.setMessage("Empty string");
                 }
-                if (IPasswordChecker.isSpace(password, username)) {
+                if (IPasswordChecker.isSpace(pwd)) {
                     jsonResponse.setCode(2012);
                     jsonResponse.setMessage("Space exists");
                 }
-                if(jsonResponse.getCode() == 0) {
+                if (IPasswordChecker.isTooLong(pwd)) {
+                    jsonResponse.setCode(2014);
+                    jsonResponse.setMessage("String is too long");
+                }
+                if (jsonResponse.getCode() == 0) {
                     return true;
                 } else {
                     String jsonString = objectMapper.writeValueAsString(jsonResponse);

@@ -58,7 +58,7 @@ public class CORSFilter implements Filter
         解决输入流问题req.body
          */
         req.setCharacterEncoding("UTF-8");
-        filterChain.doFilter(req,resp);
+        filterChain.doFilter(req, resp);
     }
 
     @Override

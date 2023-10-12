@@ -10,27 +10,32 @@ public interface UserDao
 {
     User getUser(User user);
 
-    default User getUserById(Integer id) {
+    default User getUserById(Long id) {
         User user = new User(null, null, id);
         return getUser(user);
     }
 
-    default User getUserByUsernameAndPassword(String username, String password) {
-        User user = new User(username, password, null);
+    default User getUserByUUIDAndPassword(Long uuid, String pwd) {
+        User user = new User(uuid, pwd, (Long) null);
         return getUser(user);
     }
 
-    User isExist(String username);
+    default Long getIdByUuid(Long uuid) {
+        User user = new User(uuid, (String) null, (Long) null);
+        user = getUser(user);
+        if (user == null) {
+            return null;
+        } else {
+            return user.getId();
+        }
+    }
+    Long insertUser(User user);
 
-    int insertUser(User user);
+    int deleteUser(Long id);
 
-    int deleteUser(int id);
+    int updateUser(User user);
 
     int getAmount();
 
     List<User> getUsersInPage(int start, int len);
-
-    int updateUsername(String username, int id);
-
-    int updatePassword(String password, int id);
 }

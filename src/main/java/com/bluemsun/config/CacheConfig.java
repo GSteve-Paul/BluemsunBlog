@@ -1,7 +1,6 @@
 package com.bluemsun.config;
 
 import com.bluemsun.util.RedisMybatisCache;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -9,12 +8,13 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 @Configuration
-public class CacheConfig {
+public class CacheConfig
+{
     @Resource
     RedisTemplate<Object, Object> redisTemplate1;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         //把RedisTemplate给到RedisMybatisCache
         RedisMybatisCache.setTemplate(redisTemplate1);
     }

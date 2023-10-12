@@ -14,8 +14,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class RedisMybatisCache implements Cache
 {
 
-    private final String id;
     private static RedisTemplate<Object, Object> template;
+    private final String id;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 
     public RedisMybatisCache(String id) {
@@ -33,7 +33,7 @@ public class RedisMybatisCache implements Cache
 
     @Override
     public void putObject(Object o, Object o1) {
-        long time = new Random().nextLong() % 10 + 5;
+        long time = Math.abs(new Random().nextLong() % 10 + 5);
         template.opsForValue().set(o, o1, time, TimeUnit.DAYS);
     }
 
