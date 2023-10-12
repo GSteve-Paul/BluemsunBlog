@@ -6,6 +6,7 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.time.Duration;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -33,8 +34,8 @@ public class RedisMybatisCache implements Cache
 
     @Override
     public void putObject(Object o, Object o1) {
-        long time = Math.abs(new Random().nextLong() % 10 + 5);
-        template.opsForValue().set(o, o1, time, TimeUnit.DAYS);
+        long time = Math.abs(new Random().nextLong() % 5) + 5;
+        template.opsForValue().set(o, o1, Duration.ofDays(time));
     }
 
     @Override

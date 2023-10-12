@@ -4,6 +4,8 @@ import com.bluemsun.entity.JsonResponse;
 import com.bluemsun.util.JWTUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,7 +18,7 @@ import java.io.PrintWriter;
 
 public class TokenInterceptor implements HandlerInterceptor
 {
-    @Resource
+    @Autowired
     JWTUtil jwtUtil;
 
     @Override
@@ -25,19 +27,17 @@ public class TokenInterceptor implements HandlerInterceptor
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             TokenChecker annotation = handlerMethod.getMethod().getAnnotation(TokenChecker.class);
             if (null != annotation) {
-                InputStream inputStream = request.getInputStream();
-                ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode jsonNode = objectMapper.readTree(inputStream);
-                String token = jsonNode.get("token").asText();
+                String token = request.getHeader("token");
                 boolean isok = false;
                 for (String type : annotation.value()) {
-                    isok = isok || jwtUtil.checkToken(token, type);
+                    isok = isok || jwtUtil.checkToken(token,type);
                 }
                 if (isok) {
                     return true;
                 } else {
                     JsonResponse jsonResponse = new JsonResponse(2500, "not authorized", null);
                     PrintWriter printWriter = response.getWriter();
+                    ObjectMapper objectMapper = new ObjectMapper();
                     printWriter.write(objectMapper.writeValueAsString(jsonResponse));
                     return false;
                 }

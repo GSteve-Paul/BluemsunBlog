@@ -8,9 +8,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Date;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class JWTUtil
@@ -20,9 +20,6 @@ public class JWTUtil
 
     @Value("${token.innerSecret}")
     String innerSecret;
-
-    @Value("${token.outSecret}")
-    String outSecret;
 
     public String createToken(Long uuid, String type) {
         String token = Jwts.builder()
@@ -36,13 +33,28 @@ public class JWTUtil
     }
 
     public boolean checkToken(String token, String type) {
-        Long uuid = getUuid(token);
-        String tokenType = getType(token);
-        return uuid.toString().equals(redisTemplate2.opsForValue().get(token)) && type.equals(tokenType);
+        try {
+            Claims body = Jwts.parser().setSigningKey(innerSecret).parseClaimsJws(token).getBody();
+            Long uuid = getUuid(body);
+            String thisType = getType(body);
+            if(!uuid.toString().equals(redisTemplate2.opsForValue().get(token))) {
+                throw new Exception();
+            }
+            if(!thisType.equals(type)) {
+                throw new Exception();
+            }
+        } catch (Exception ex) {
+            return false;
+        }
+        return true;
     }
 
     public void deleteToken(String token) {
         redisTemplate2.delete(token);
+    }
+
+    public Long getUuid(Claims body) {
+        return Long.parseLong(body.getSubject());
     }
 
     public Long getUuid(String token) {
@@ -50,8 +62,11 @@ public class JWTUtil
         return Long.parseLong(body.getSubject());
     }
 
-    public String getType(String token) {
-        Claims body = Jwts.parser().setSigningKey(innerSecret).parseClaimsJws(token).getBody();
+    public String getType(Claims body) {
         return body.getAudience();
+    }
+
+    public String getToken(HttpServletRequest request) {
+        return request.getHeader("token");
     }
 }

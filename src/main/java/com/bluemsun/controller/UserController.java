@@ -7,14 +7,19 @@ import com.bluemsun.interceptor.LoginChecker;
 import com.bluemsun.interceptor.RegisterChecker;
 import com.bluemsun.interceptor.TokenChecker;
 import com.bluemsun.service.UserService;
+import com.bluemsun.util.JWTUtil;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/user")
 public class UserController
 {
+    @Resource
+    JWTUtil jwtUtil;
     @Resource
     UserService userService;
 
@@ -53,14 +58,16 @@ public class UserController
     }
 
     @DeleteMapping("/logout")
-    public JsonResponse logout(@RequestBody String token) {
+    public JsonResponse logout(HttpServletRequest request) {
+        String token = jwtUtil.getToken(request);
         userService.logout(token);
         return new JsonResponse(2000, "Logout successfully");
     }
 
     @GetMapping("/info")
     @TokenChecker({"user"})
-    public JsonResponse getInfo(@RequestBody String token) {
+    public JsonResponse getInfo(HttpServletRequest request) {
+        String token = jwtUtil.getToken(request);
         Long userId = userService.getIdFromToken(token);
         User user = userService.getInfo(userId, false);
         JsonResponse jsonResponse = new JsonResponse();
@@ -73,7 +80,8 @@ public class UserController
     @PutMapping("/info")
     @RegisterChecker
     @TokenChecker("user")
-    public JsonResponse putInfo(@RequestBody String token, @RequestBody User user) {
+    public JsonResponse putInfo(@RequestBody User user,HttpServletRequest request) {
+        String token = jwtUtil.getToken(request);
         Long userId = userService.getIdFromToken(token);
         user.setId(userId);
         int val = userService.updateInfo(user);
@@ -91,7 +99,7 @@ public class UserController
         return new JsonResponse(2000, "获取成功", amount);
     }
 
-    @GetMapping("/page")
+    @PostMapping("/page")
     @TokenChecker({"user", "admin"})
     public JsonResponse getPage(@RequestBody Page<User> page) {
         page.init();
