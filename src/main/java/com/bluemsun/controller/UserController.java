@@ -58,6 +58,7 @@ public class UserController
     }
 
     @DeleteMapping("/logout")
+    @TokenChecker({"user","admin"})
     public JsonResponse logout(HttpServletRequest request) {
         String token = jwtUtil.getToken(request);
         userService.logout(token);

@@ -1,6 +1,7 @@
 package com.bluemsun.filter;
 
 import com.bluemsun.util.RequestWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 
 import javax.servlet.*;
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Slf4j
 @WebFilter("/*")
 @Order(2)
 
@@ -18,7 +20,7 @@ public class RequestWrapperFilter implements Filter
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        System.out.println("RequestWrapperFilter.init");
+        log.info("RequestWrapperFilter init");
     }
 
     @Override
@@ -37,6 +39,6 @@ public class RequestWrapperFilter implements Filter
 
     @Override
     public void destroy() {
-        System.out.println("RequestWrapperFilter.destroy");
+        log.info("RequestWrapperFilter destroy");
     }
 }

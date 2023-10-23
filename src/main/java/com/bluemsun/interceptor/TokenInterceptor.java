@@ -30,7 +30,7 @@ public class TokenInterceptor implements HandlerInterceptor
                 String token = request.getHeader("token");
                 boolean isok = false;
                 for (String type : annotation.value()) {
-                    isok = isok || jwtUtil.checkToken(token,type);
+                    isok = isok || jwtUtil.checkToken(token,type) != null;
                 }
                 if (isok) {
                     return true;

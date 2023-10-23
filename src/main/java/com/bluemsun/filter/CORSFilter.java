@@ -1,5 +1,6 @@
 package com.bluemsun.filter;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 
 import javax.servlet.*;
@@ -8,13 +9,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Slf4j
 @WebFilter("/*")
 @Order(1)
 public class CORSFilter implements Filter
 {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        System.out.println("CORSFilter.init");
+        log.info("CORSFilter init");
     }
 
     @Override
@@ -63,6 +65,6 @@ public class CORSFilter implements Filter
 
     @Override
     public void destroy() {
-        System.out.println("CORSFilter.destroy");
+        log.info("CORSFilter destroy");
     }
 }

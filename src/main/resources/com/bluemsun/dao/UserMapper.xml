@@ -25,16 +25,16 @@
     </delete>
     <select id="getUser" resultType="com.bluemsun.entity.User"
             parameterType="com.bluemsun.entity.User">
-        SELECT name,pwd,phone,photo,banned,uuid,id FROM user WHERE
+        SELECT name,pwd,phone,admin,photo,banned,uuid,id,create_time FROM user WHERE
         <choose>
             <when test="uuid != null and pwd != null">
-                uuid = #{uuid} AND BINARY pwd = #{pwd}
+                uuid = #{uuid} AND BINARY pwd = #{pwd} AND admin = 0
             </when>
             <when test="uuid != null">
-                uuid = #{uuid}
+                uuid = #{uuid} AND admin = 0
             </when>
             <when test="id != null">
-                id = #{id}
+                id = #{id} AND admin = 0
             </when>
             <otherwise>
                 1 = 1
@@ -47,7 +47,7 @@
         FROM user
     </select>
     <select id="getUsersInPage" resultType="com.bluemsun.entity.User">
-        SELECT name, phone, photo, banned, uuid, id
+        SELECT name, phone, photo, admin, banned, uuid, id,create_time
         FROM user
         LIMIT #{start},#{len}
     </select>

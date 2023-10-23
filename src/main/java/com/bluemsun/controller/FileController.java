@@ -1,6 +1,7 @@
 package com.bluemsun.controller;
 
 import com.bluemsun.entity.JsonResponse;
+import com.bluemsun.util.UriUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,8 +31,6 @@ public class FileController
         for (MultipartFile file : files) {
             String name = file.getOriginalFilename();
             System.out.println(name);
-            String suffix = name.substring(name.lastIndexOf('.'));
-            System.out.println(suffix);
             Long size = file.getSize();
             System.out.println(size);
 
@@ -43,12 +42,10 @@ public class FileController
                 newFile.mkdirs();
             }
 
-            String newName = UUID.randomUUID() + suffix;
+            String newName = UUID.randomUUID() + name;
             try {
                 file.transferTo(new File(newFile, newName));
-                String fileServerPath = req.getScheme() + "://" +
-                        req.getServerName() + ":" + "8081" +
-                        "/static/" + newName;
+                String fileServerPath = UriUtil.getServerUri(newName);
                 filesNameInServer.add(fileServerPath);
             } catch (IOException e) {
                 exceptionCnt++;

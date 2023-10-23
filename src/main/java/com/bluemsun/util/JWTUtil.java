@@ -28,29 +28,46 @@ public class JWTUtil
                 .setExpiration(new Date(System.currentTimeMillis() + 604800000L))
                 .signWith(SignatureAlgorithm.HS512, innerSecret)
                 .compact();
-        redisTemplate2.opsForValue().setIfAbsent(token, uuid.toString(), Duration.ofDays(7));
+        redisTemplate2.opsForValue().set(uuid.toString(),token, Duration.ofDays(7));
         return token;
     }
 
-    public boolean checkToken(String token, String type) {
+    public Claims checkToken(String token, String type) {
+        Claims body = null;
         try {
-            Claims body = Jwts.parser().setSigningKey(innerSecret).parseClaimsJws(token).getBody();
+            body = Jwts.parser().setSigningKey(innerSecret).parseClaimsJws(token).getBody();
             Long uuid = getUuid(body);
             String thisType = getType(body);
-            if(!uuid.toString().equals(redisTemplate2.opsForValue().get(token))) {
+            if(!token.equals(redisTemplate2.opsForValue().get(uuid.toString()))) {
                 throw new Exception();
             }
             if(!thisType.equals(type)) {
                 throw new Exception();
             }
         } catch (Exception ex) {
-            return false;
+            return null;
         }
-        return true;
+        return body;
+    }
+
+    public Claims checkToken(String token) {
+        Claims body = null;
+        try {
+            body = Jwts.parser().setSigningKey(innerSecret).parseClaimsJws(token).getBody();
+            Long uuid = getUuid(body);
+            if(!token.equals(redisTemplate2.opsForValue().get(uuid.toString()))) {
+                throw new Exception();
+            }
+        } catch (Exception ex) {
+            return null;
+        }
+        return body;
     }
 
     public void deleteToken(String token) {
-        redisTemplate2.delete(token);
+        Claims body = Jwts.parser().setSigningKey(innerSecret).parseClaimsJws(token).getBody();
+        Long uuid = getUuid(body);
+        redisTemplate2.delete(uuid.toString());
     }
 
     public Long getUuid(Claims body) {

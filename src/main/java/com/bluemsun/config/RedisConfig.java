@@ -47,7 +47,7 @@ public class RedisConfig
         return poolConfig;
     }
 
-    @Bean(name = "redisTemplate1")
+    @Bean(name = "redisTemplate1")//cache of Mybatis
     public RedisTemplate<Object, Object> getRedisTemplate1() {
         // 构建工厂对象
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
@@ -68,7 +68,7 @@ public class RedisConfig
         return redisTemplate;
     }
 
-    @Bean(name = "redisTemplate2")
+    @Bean(name = "redisTemplate2")//whitelist of tokens
     public StringRedisTemplate getRedisTemplate2() {
         // 构建工厂对象
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
@@ -82,6 +82,25 @@ public class RedisConfig
         LettuceConnectionFactory factory = new LettuceConnectionFactory(config, clientConfig);
         // 设置使用的redis数据库
         factory.setDatabase(1);
+        // 重新初始化工厂
+        factory.afterPropertiesSet();
+        return new StringRedisTemplate(factory);
+    }
+
+    @Bean(name = "redisTemplate3")//rank list of blogs
+    public StringRedisTemplate getRedisTemplate3() {
+        // 构建工厂对象
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(host);
+        config.setPort(port);
+        //config.setPassword(RedisPassword.of(password));
+        LettucePoolingClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
+                .commandTimeout(Duration.ofSeconds(timeout))
+                .poolConfig(getPoolConfig())
+                .build();
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(config, clientConfig);
+        // 设置使用的redis数据库
+        factory.setDatabase(2);
         // 重新初始化工厂
         factory.afterPropertiesSet();
         return new StringRedisTemplate(factory);

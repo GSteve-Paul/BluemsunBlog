@@ -20,6 +20,7 @@ public class User implements Serializable
     String pwd;
     String photo;
     Long phone;
+    Integer admin;
     Byte banned;
     Long uuid;
     Timestamp createTime;
