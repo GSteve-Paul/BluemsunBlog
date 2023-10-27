@@ -87,7 +87,7 @@ public class RedisConfig
         return new StringRedisTemplate(factory);
     }
 
-    @Bean(name = "redisTemplate3")//rank list of blogs
+    @Bean(name = "redisTemplate3")//like and collect
     public StringRedisTemplate getRedisTemplate3() {
         // 构建工厂对象
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();

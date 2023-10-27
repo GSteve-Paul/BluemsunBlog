@@ -1,8 +1,9 @@
 package com.bluemsun.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Page<T>
+public class Page<T> implements Serializable
 {
     /**
      * 用于存放数据库中的数据结果集,使用泛型，增强通用性

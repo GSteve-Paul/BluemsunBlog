@@ -7,34 +7,35 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.io.Serializable;
 
-@Entity
 @Getter
 @Setter
-public class BlogUserLike implements Serializable
+@Entity
+public class BlogUserCollect implements Serializable
 {
     @Id
     Long id;
-    Long userId;
     Long blogId;
+    Long userId;
     Integer state;
 
-    public BlogUserLike() {}
+    public BlogUserCollect() {
+    }
 
-    public BlogUserLike(Long id, Long userId, Long blogId, Integer state) {
+    public BlogUserCollect(Long id, Long blogId, Long userId, Integer state) {
         this.id = id;
-        this.userId = userId;
         this.blogId = blogId;
+        this.userId = userId;
         this.state = state;
     }
 
-    public BlogUserLike(Long userId, Long blogId) {
-        this.userId = userId;
+    public BlogUserCollect(Long blogId, Long userId) {
         this.blogId = blogId;
+        this.userId = userId;
     }
 
-    public BlogUserLike(Long userId, Long blogId, Integer state) {
-        this.userId = userId;
+    public BlogUserCollect(Long blogId, Long userId, Integer state) {
         this.blogId = blogId;
+        this.userId = userId;
         this.state = state;
     }
 }

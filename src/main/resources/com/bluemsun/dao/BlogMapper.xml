@@ -6,40 +6,56 @@
     <cache type="com.bluemsun.util.RedisMybatisCache"/>
     <!-- crud -->
     <select id="getBlogs" resultType="com.bluemsun.entity.Blog">
-    SELECT * FROM blog WHERE 1 = 1
+        SELECT * FROM blog WHERE 1 = 1
         <if test="audit != null">
-           AND audit = #{audit}
+            AND audit = #{audit}
         </if>
         AND id in
-        <foreach collection="blogIds" item = "i" open="(" separator="," close=")">
+        <foreach collection="blogIds" item="i" open="(" separator="," close=")">
             #{i}
         </foreach>
     </select>
-    <insert id="insertBlog" parameterType="com.bluemsun.entity.Blog" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO blog (content,user_id,introduction,title) VALUES (#{content},#{userId},#{introduction},#{title})
+    <insert id="insertBlog" parameterType="com.bluemsun.entity.Blog"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO blog (content, user_id, introduction, title)
+        VALUES (#{content}, #{userId}, #{introduction}, #{title})
     </insert>
     <update id="updateBlogDetail" parameterType="com.bluemsun.entity.Blog">
-        UPDATE blog SET content = #{content},introduction = #{introduction},title = #{title} WHERE id = #{id}
+        UPDATE blog
+        SET content      = #{content},
+            introduction = #{introduction},
+            title        = #{title}
+        WHERE id = #{id}
     </update>
     <update id="updateBlogAudit">
-        UPDATE blog SET audit = #{audit} WHERE id = #{blogId}
+        UPDATE blog
+        SET audit = #{audit}
+        WHERE id = #{blogId}
     </update>
     <update id="updateBlogUp">
-        UPDATE blog SET up = #{audit} WHERE id = #{blogId}
+        UPDATE blog
+        SET up = #{audit}
+        WHERE id = #{blogId}
     </update>
     <insert id="insertBlogColumn">
         INSERT INTO blog_column (blog_id, column_id) VALUES
-        <foreach collection="columnIds" item = "i" separator=",">
+        <foreach collection="columnIds" item="i" separator=",">
             (#{blogId},#{i})
         </foreach>
     </insert>
     <delete id="deleteBlogColumn" parameterType="Long">
-        DELETE FROM blog_column WHERE blog_id = #{blogId}
+        DELETE
+        FROM blog_column
+        WHERE blog_id = #{blogId}
     </delete>
     <delete id="deleteBlog" parameterType="Long">
-        DELETE FROM blog WHERE id = #{blogId}
+        DELETE
+        FROM blog
+        WHERE id = #{blogId}
     </delete>
-
+    <select id="isExist" resultType="Integer">
+        SELECT count(id) FROM blog WHERE id = #{id}
+    </select>
     <!-- blog page in column -->
     <select id="getBlogsInColumnAmount" resultType="java.lang.Integer">
         SELECT COUNT(id)
@@ -48,10 +64,11 @@
           AND user_id = #{userId}
     </select>
     <select id="getBlogsInColumnPage" resultType="com.bluemsun.entity.Blog">
-        SELECT content, audit, up, user_id, id
+        SELECT content, likes, audit, up, user_id, id
         FROM blog
         WHERE id IN (SELECT blog_id FROM blog_column WHERE id = #{columnId})
           AND user_id = #{userId}
         LIMIT #{start},#{len}
     </select>
+
 </mapper>

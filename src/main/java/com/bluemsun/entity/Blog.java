@@ -16,6 +16,7 @@ public class Blog implements Serializable
     String title;
     String content;
     String introduction;
+    Long likes;
     Boolean audit;
     Boolean up;
     Long userId;

@@ -48,7 +48,8 @@ public class CORSFilter implements Filter
                         "Cookie," +
                         "X-XSRF-TOKEN," +
                         "X-CSRF-TOKEN," +
-                        "Authorization");
+                        "Authorization," +
+                        "token");
         //将Cookie发到服务端，需要指定Access-Control-Allow-Credentials为true;
         resp.setHeader("Access-Control-Allow-Credentials", "true");
         //首部字段 Access-Control-Allow-Methods 表明服务器允许客户端使用 POST, GET 和 OPTIONS 方法发起请求

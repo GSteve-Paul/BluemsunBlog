@@ -29,6 +29,11 @@ public class BlogService
     @Resource
     UserService userService;
 
+    public Boolean isExist(Long blogId) {
+        int val = blogDao.isExist(blogId);
+        return val == 1;
+    }
+
     @Transactional
     public void saveBlog(Blog blog, List<Long> columnIds, String token) {
         //save the content into a new file
@@ -129,4 +134,5 @@ public class BlogService
     public void setUp(Long blogId, Boolean up) {
         blogDao.updateBlogUp(up, blogId);
     }
+
 }

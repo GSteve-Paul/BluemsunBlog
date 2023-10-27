@@ -9,6 +9,7 @@ import java.util.List;
 @Mapper
 public interface BlogDao
 {
+
     Long insertBlog(Blog blog);
 
     int insertBlogColumn(Long blogId, List<Long> columnIds);
@@ -28,6 +29,8 @@ public interface BlogDao
         list.add(blogId);
         return getBlogs(list, audit).get(0);
     }
+
+    Integer isExist(Long blogId);
 
     int deleteBlog(Long blogId);
 
