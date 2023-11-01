@@ -19,7 +19,7 @@ public class QuartzConfig
     public Trigger updateMySQLTrigger() {
         SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder
                 .simpleSchedule()
-                .withIntervalInMinutes(10)
+                .withIntervalInMinutes(5)
                 .repeatForever();
         return TriggerBuilder.newTrigger()
                 .forJob(updateMySQLDetail())
