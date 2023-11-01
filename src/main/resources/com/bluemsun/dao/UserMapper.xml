@@ -7,16 +7,31 @@
     <!-- crud -->
     <insert id="insertUser" parameterType="com.bluemsun.entity.User"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO user (name, pwd, phone, uuid)
-        VALUES (#{name}, #{pwd}, #{phone}, #{uuid})
+        INSERT INTO user (name, pwd, phone, uuid, admin)
+        VALUES (#{name}, #{pwd}, #{phone}, #{uuid}, #{admin})
     </insert>
     <update id="updateUser" parameterType="com.bluemsun.entity.User">
         UPDATE user
-        SET name  = #{name},
-            pwd   = #{pwd},
-            photo = #{photo},
-            phone = #{phone}
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="photo != null">
+                photo = #{photo},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+        </set>
         WHERE id = #{id}
+    </update>
+    <update id="updatePwd">
+        UPDATE user
+        SET pwd = #{pwd}
+        WHERE id = #{userId}
+    </update>
+    <update id="ban">
+        UPDATE user SET banned = #{banned} WHERE id = #{userId}
     </update>
     <delete id="deleteUser" parameterType="int">
         DELETE
@@ -25,21 +40,25 @@
     </delete>
     <select id="getUser" resultType="com.bluemsun.entity.User"
             parameterType="com.bluemsun.entity.User">
-        SELECT name,pwd,phone,admin,photo,banned,uuid,id,create_time FROM user WHERE
+        SELECT name,pwd,phone,admin,photo,banned,uuid,id,create_time FROM user
+        WHERE
         <choose>
             <when test="uuid != null and pwd != null">
-                uuid = #{uuid} AND BINARY pwd = #{pwd} AND admin = 0
+                uuid = #{uuid} AND BINARY pwd = #{pwd}
             </when>
             <when test="uuid != null">
-                uuid = #{uuid} AND admin = 0
+                uuid = #{uuid}
             </when>
             <when test="id != null">
-                id = #{id} AND admin = 0
+                id = #{id}
             </when>
             <otherwise>
                 1 = 1
             </otherwise>
         </choose>
+        <if test="admin != null">
+            AND admin = #{admin}
+        </if>
     </select>
     <!-- user page -->
     <select id="getAmount" resultType="java.lang.Integer">
@@ -47,7 +66,14 @@
         FROM user
     </select>
     <select id="getUsersInPage" resultType="com.bluemsun.entity.User">
-        SELECT name, phone, photo, admin, banned, uuid, id,create_time
+        SELECT name,
+               phone,
+               photo,
+               admin,
+               banned,
+               uuid,
+               id,
+               create_time
         FROM user
         LIMIT #{start},#{len}
     </select>

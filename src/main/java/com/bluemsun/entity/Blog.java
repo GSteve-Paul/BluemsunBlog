@@ -1,11 +1,8 @@
 package com.bluemsun.entity;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -13,22 +10,20 @@ import java.sql.Timestamp;
 @Setter
 public class Blog implements Serializable
 {
+    public static final Integer AUDITED = 1;
+    public static final Integer NOTAUDITED = 0;
+    public static final Integer UP = 1;
+    public static final Integer NOTUP = 0;
     String title;
     String content;
     String introduction;
     Long likes;
-    Boolean audit;
-    Boolean up;
+    Integer audit;
+    Integer up;
     Long userId;
     Timestamp createTime;
     Timestamp updateTime;
     Long id;
-
-    public static final Boolean AUDITED = true;
-    public static final Boolean NOTAUDITED = false;
-
-    public static final Boolean UP = true;
-    public static final Boolean NOTUP = false;
 
     public Blog(String content, Long userId) {
         this.content = content;

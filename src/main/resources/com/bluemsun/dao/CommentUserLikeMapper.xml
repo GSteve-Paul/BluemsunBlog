@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bluemsun.dao.CommentUserLikeDao">
+    <cache type="com.bluemsun.util.RedisMybatisCache"/>
+    <insert id="insertCommentUserLike">
+        INSERT INTO comment_user_like
+            (comment_id, user_id)
+        VALUES (#{commentId}, #{userId})
+    </insert>
+
+    <delete id="removeCommentUserLike">
+        DELETE
+        FROM comment_user_like
+        WHERE user_id = #{userId}
+          AND comment_id = #{commentId}
+    </delete>
+    <select id="checkCommentUserLike"
+            resultType="com.bluemsun.entity.CommentUserLike">
+        SELECT *
+        FROM comment_user_like
+        WHERE comment_id = #{commentId}
+          AND user_id = #{userId}
+    </select>
+    <select id="getCommentUserLikeAmount" resultType="java.lang.Long">
+        SELECT likes
+        FROM comment
+        WHERE id = #{blogId}
+    </select>
+    <update id="updateLikes">
+        UPDATE comment
+        SET likes = likes + #{delta}
+        WHERE id = #{commentId}
+    </update>
+
+</mapper>

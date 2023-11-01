@@ -15,7 +15,7 @@
         SET name = #{name}
         WHERE id = #{id}
     </update>
-    <select id="getColumn" parameterType="Integer"
+    <select id="getColumn" parameterType="Long"
             resultType="com.bluemsun.entity.Column">
         SELECT name, id
         FROM ccolumn
@@ -31,6 +31,17 @@
         FROM ccolumn
         LIMIT #{start},#{len}
     </select>
-
+    <!-- blog page -->
+    <select id="getBlogAmount" resultType="java.lang.Integer">
+        SELECT count(id)
+        FROM blog_column
+        WHERE column_id = #{columnId}
+    </select>
+    <select id="getBlogsInColumnPage" resultType="java.lang.Long">
+        SELECT blog_id
+        FROM blog_column
+        WHERE column_id = #{columnId}
+        LIMIT #{start},#{len}
+    </select>
 
 </mapper>

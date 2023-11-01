@@ -15,8 +15,9 @@ public interface UserDao
         return getUser(user);
     }
 
-    default User getUserByUUIDAndPassword(Long uuid, String pwd) {
+    default User getUserByUUIDAndPassword(Long uuid, String pwd, Integer admin) {
         User user = new User(uuid, pwd, (Long) null);
+        user.setAdmin(admin);
         return getUser(user);
     }
 
@@ -29,13 +30,18 @@ public interface UserDao
             return user.getId();
         }
     }
+
     Long insertUser(User user);
 
     int deleteUser(Long id);
 
     int updateUser(User user);
 
+    int updatePwd(String pwd, Long userId);
+
     int getAmount();
 
     List<User> getUsersInPage(int start, int len);
+
+    Integer ban(Long userId,Integer banned);
 }

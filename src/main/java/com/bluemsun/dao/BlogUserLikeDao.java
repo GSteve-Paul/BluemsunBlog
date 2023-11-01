@@ -1,6 +1,5 @@
 package com.bluemsun.dao;
 
-import com.bluemsun.entity.Blog;
 import com.bluemsun.entity.BlogUserLike;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -8,8 +7,12 @@ import org.apache.ibatis.annotations.Mapper;
 public interface BlogUserLikeDao
 {
     Integer insertBlogUserLike(BlogUserLike blogUserLike);
+
     Integer removeBlogUserLike(BlogUserLike blogUserLike);
+
     BlogUserLike checkBlogUserLike(BlogUserLike blogUserLike);
-    Integer updateLikes(Long blogId,Long delta);
+
+    Integer updateLikes(Long blogId, Long delta);
+
     Long getBlogUserLikeAmount(Long blogId);
 }

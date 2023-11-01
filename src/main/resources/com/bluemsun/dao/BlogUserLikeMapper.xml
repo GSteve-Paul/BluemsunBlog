@@ -6,21 +6,30 @@
     <cache type="com.bluemsun.util.RedisMybatisCache"/>
     <insert id="insertBlogUserLike">
         INSERT INTO blog_user_like
-            (user_id, blog_id) VALUES (#{userId},#{blogId})
+            (user_id, blog_id)
+        VALUES (#{userId}, #{blogId})
     </insert>
     <delete id="removeBlogUserLike">
-        DELETE FROM blog_user_like
-               WHERE user_id = #{userId} AND blog_id = #{blogId}
+        DELETE
+        FROM blog_user_like
+        WHERE user_id = #{userId}
+          AND blog_id = #{blogId}
     </delete>
     <select id="checkBlogUserLike"
             resultType="com.bluemsun.entity.BlogUserLike">
-        SELECT * FROM blog_user_like
-                  WHERE blog_id = #{blogId} AND user_id = #{userId}
+        SELECT *
+        FROM blog_user_like
+        WHERE blog_id = #{blogId}
+          AND user_id = #{userId}
     </select>
     <select id="getBlogUserLikeAmount" resultType="java.lang.Long">
-        SELECT likes FROM blog WHERE id = #{blogId}
+        SELECT likes
+        FROM blog
+        WHERE id = #{blogId}
     </select>
     <update id="updateLikes">
-        UPDATE blog SET likes = likes + #{delta} WHERE id = #{blogId}
+        UPDATE blog
+        SET likes = likes + #{delta}
+        WHERE id = #{blogId}
     </update>
 </mapper>

@@ -15,10 +15,14 @@
         </if>
     </insert>
     <delete id="deleteComment">
-        DELETE FROM comment WHERE id = #{commentId}
+        DELETE
+        FROM comment
+        WHERE id = #{commentId}
     </delete>
     <select id="getComment" resultType="com.bluemsun.entity.Comment">
-        SELECT * FROM comment WHERE id = #{commentId}
+        SELECT *
+        FROM comment
+        WHERE id = #{commentId}
     </select>
     <select id="getCommentAmount" resultType="java.lang.Integer">
         SELECT count(id) FROM comment WHERE
@@ -48,6 +52,7 @@
                 1 = 1
             </otherwise>
         </choose>
+        ORDER BY update_time DESC
         LIMIT #{start},#{len}
     </select>
 

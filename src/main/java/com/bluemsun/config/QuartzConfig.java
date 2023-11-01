@@ -1,6 +1,5 @@
 package com.bluemsun.config;
 
-import com.bluemsun.service.UpdateMySQLJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +17,9 @@ public class QuartzConfig
 
     @Bean
     public Trigger updateMySQLTrigger() {
-        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
-                .withIntervalInHours(1)
+        SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder
+                .simpleSchedule()
+                .withIntervalInMinutes(10)
                 .repeatForever();
         return TriggerBuilder.newTrigger()
                 .forJob(updateMySQLDetail())

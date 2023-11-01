@@ -11,40 +11,34 @@ import javax.annotation.Resource;
 import java.util.Map;
 
 @Service
-public class BlogUserLikeService
+public class LikeBlogRedisService
 {
     public final static Integer INMYSQL = 2;
     public final static Integer INREDISLIKE = 1;
     public final static Integer NOTEXIST = 0;
     public final static Integer INREDISDISLIKE = -1;
-    @Resource
-    StringRedisTemplate redisTemplate3;
-    @Resource
-    BlogUserLikeDao blogUserLikeDao;
-    @Resource
-    BlogService blogService;
-
     public final static String LikeKey = "BlogLike";
     public final static String CntKey = "BlogLikeCnt";
+    @Resource
+    private StringRedisTemplate redisTemplate3;
+    @Resource
+    private BlogUserLikeDao blogUserLikeDao;
 
-    String getLikeKey(Long blogId) {
-        return blogId + "BlogLike";
+    private String getLikeKey(Long blogId) {
+        return blogId + LikeKey;
     }
 
-    String getCntKey(Long blogId) {
-        return blogId + "BlogLikeCnt";
+    private String getCntKey(Long blogId) {
+        return blogId + CntKey;
     }
 
-    Long getBlogId(String key) {
-        String val = key.substring(0,key.indexOf(LikeKey));
+    private Long getBlogId(String key) {
+        String val = key.substring(0, key.indexOf(LikeKey));
         return Long.parseLong(val);
     }
 
-    public Boolean like(Long userId, Long blogId) {
-        if(!blogService.isExist(blogId)) {
-            return false;
-        }
-        int value = isLike(userId, blogId);
+    public boolean increaseLike(Long blogId, Long userId) {
+        int value = isLike(blogId, userId);
         if (value == INMYSQL || value == INREDISLIKE) {
             return false;
         }
@@ -52,26 +46,22 @@ public class BlogUserLikeService
                 (getCntKey(blogId), String.valueOf(0));
         redisTemplate3.opsForValue().increment(getCntKey(blogId));
         if (value == INREDISDISLIKE) {
-            deleteLike(userId, blogId);
+            deleteLike(blogId, userId);
             return true;
         }
         redisTemplate3.opsForHash().put(getLikeKey(blogId)
                 , userId.toString(), "1");
-
         return true;
     }
 
-    public Boolean dislike(Long userId, Long blogId) {
-        if(!blogService.isExist(blogId)) {
-            return false;
-        }
-        int value = isLike(userId, blogId);
+    public boolean decreaseLike(Long blogId, Long userId) {
+        int value = isLike(blogId, userId);
         if (value == INREDISDISLIKE || value == NOTEXIST) {
             return false;
         }
         redisTemplate3.opsForValue().decrement(getCntKey(blogId));
         if (value == INREDISLIKE) {
-            deleteLike(userId, blogId);
+            deleteLike(blogId,userId );
             return true;
         }
         redisTemplate3.opsForHash().put(getLikeKey(blogId)
@@ -79,21 +69,12 @@ public class BlogUserLikeService
         return true;
     }
 
-    public void deleteLike(Long userId, Long blogId) {
+    public void deleteLike(Long blogId, Long userId) {
         redisTemplate3.opsForHash().delete(getLikeKey(blogId)
                 , userId.toString());
     }
 
-    public Long getLikesAmount(Long blogId) {
-        Long val = blogUserLikeDao.getBlogUserLikeAmount(blogId);
-        try {
-            return val + Long.parseLong(redisTemplate3.opsForValue().get(getCntKey(blogId)));
-        } catch (NullPointerException ex) {
-            return val;
-        }
-    }
-
-    public Integer isLike(Long userId, Long blogId) {
+    public int isLike(Long blogId, Long userId) {
         if (!redisTemplate3.opsForHash()
                 .hasKey(getLikeKey(blogId), userId.toString())) {
             BlogUserLike blogUserLike = blogUserLikeDao
@@ -109,6 +90,15 @@ public class BlogUserLikeService
             return INREDISLIKE;
         }
         return INREDISDISLIKE;
+    }
+
+    public Long getLikeAmount(Long blogId) {
+        Long val = blogUserLikeDao.getBlogUserLikeAmount(blogId);
+        try {
+            return val + Long.parseLong(redisTemplate3.opsForValue().get(getCntKey(blogId)));
+        } catch (Exception ex) {
+            return val;
+        }
     }
 
     public void saveInformationFromRedisToMySQL() {
@@ -131,9 +121,10 @@ public class BlogUserLikeService
                 if (value.equals("1")) {
                     blogUserLikeDao.insertBlogUserLike(blogUserLike);
                 } else {
-                    blogUserLikeDao.removeBlogUserLike(blogUserLike);
+                   blogUserLikeDao.removeBlogUserLike(blogUserLike);
                 }
             }
+            redisTemplate3.delete(hashName);
             hashCursor.close();
         }
         cursor.close();
@@ -143,11 +134,13 @@ public class BlogUserLikeService
                 .count(10)
                 .build();
         Cursor<String> countCursor = redisTemplate3.scan(countOptions);
-        while(countCursor.hasNext()) {
+        while (countCursor.hasNext()) {
             String key = countCursor.next();
             Long blogId = getBlogId(key);
             Long delta = Long.parseLong(redisTemplate3.opsForValue().get(key));
-            blogUserLikeDao.updateLikes(blogId,delta);
+            blogUserLikeDao.updateLikes(blogId, delta);
+            redisTemplate3.delete(key);
         }
+        countCursor.close();
     }
 }

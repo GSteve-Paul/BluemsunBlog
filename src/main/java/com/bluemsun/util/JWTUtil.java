@@ -28,7 +28,7 @@ public class JWTUtil
                 .setExpiration(new Date(System.currentTimeMillis() + 604800000L))
                 .signWith(SignatureAlgorithm.HS512, innerSecret)
                 .compact();
-        redisTemplate2.opsForValue().set(uuid.toString(),token, Duration.ofDays(7));
+        redisTemplate2.opsForValue().set(uuid.toString(), token, Duration.ofDays(7));
         return token;
     }
 
@@ -38,10 +38,10 @@ public class JWTUtil
             body = Jwts.parser().setSigningKey(innerSecret).parseClaimsJws(token).getBody();
             Long uuid = getUuid(body);
             String thisType = getType(body);
-            if(!token.equals(redisTemplate2.opsForValue().get(uuid.toString()))) {
+            if (!token.equals(redisTemplate2.opsForValue().get(uuid.toString()))) {
                 throw new Exception();
             }
-            if(!thisType.equals(type)) {
+            if (!thisType.equals(type)) {
                 throw new Exception();
             }
         } catch (Exception ex) {
@@ -55,7 +55,7 @@ public class JWTUtil
         try {
             body = Jwts.parser().setSigningKey(innerSecret).parseClaimsJws(token).getBody();
             Long uuid = getUuid(body);
-            if(!token.equals(redisTemplate2.opsForValue().get(uuid.toString()))) {
+            if (!token.equals(redisTemplate2.opsForValue().get(uuid.toString()))) {
                 throw new Exception();
             }
         } catch (Exception ex) {

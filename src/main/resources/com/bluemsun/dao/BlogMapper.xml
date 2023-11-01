@@ -10,6 +10,9 @@
         <if test="audit != null">
             AND audit = #{audit}
         </if>
+        <if test="up != null">
+            AND up = #{up}
+        </if>
         AND id in
         <foreach collection="blogIds" item="i" open="(" separator="," close=")">
             #{i}
@@ -34,7 +37,7 @@
     </update>
     <update id="updateBlogUp">
         UPDATE blog
-        SET up = #{audit}
+        SET up = #{up}
         WHERE id = #{blogId}
     </update>
     <insert id="insertBlogColumn">
@@ -54,20 +57,53 @@
         WHERE id = #{blogId}
     </delete>
     <select id="isExist" resultType="Integer">
-        SELECT count(id) FROM blog WHERE id = #{id}
+        SELECT count(id)
+        FROM blog
+        WHERE id = #{id}
     </select>
     <!-- blog page in column -->
-    <select id="getBlogsInColumnAmount" resultType="java.lang.Integer">
-        SELECT COUNT(id)
-        FROM blog
-        WHERE id IN (SELECT blog_id FROM blog_column WHERE id = #{columnId})
-          AND user_id = #{userId}
+    <select id="getBlogsTimeOrderAmount" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM blog
+        <where>
+            <if test="userId != null and userId != tokenUserId">
+                AND audit = 1
+            </if>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="key != null">
+                AND (title LIKE #{key} OR introduction LIKE #{key})
+            </if>
+        </where>
     </select>
-    <select id="getBlogsInColumnPage" resultType="com.bluemsun.entity.Blog">
-        SELECT content, likes, audit, up, user_id, id
+    <select id="getBlogsTimeOrderPage" resultType="com.bluemsun.entity.Blog">
+        SELECT * FROM blog
+        <where>
+            <if test="userId != null and userId != tokenUserId">
+                AND audit = 1
+            </if>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="key != null">
+                AND (title LIKE #{key} OR introduction LIKE #{key})
+            </if>
+        </where>
+        ORDER BY up DESC, likes DESC, update_time DESC
+        LIMIT #{start},#{len}
+    </select>
+    <select id="getColumnsOfBlog"
+            resultType="com.bluemsun.entity.Column">
+        SELECT *
+        FROM ccolumn
+        WHERE id IN
+              (SELECT column_id FROM blog_column WHERE blog_id = #{blogId})
+    </select>
+    <select id="getUpBlog" resultType="com.bluemsun.entity.Blog">
+        SELECT *
         FROM blog
-        WHERE id IN (SELECT blog_id FROM blog_column WHERE id = #{columnId})
-          AND user_id = #{userId}
+        WHERE up = 1
+          AND audit = 1
         LIMIT #{start},#{len}
     </select>
 

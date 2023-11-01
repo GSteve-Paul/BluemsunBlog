@@ -28,7 +28,7 @@ public class RequestWrapperFilter implements Filter
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         HttpServletResponse resp = (HttpServletResponse) servletResponse;
         for (String s : ignore) {
-            if (req.getRequestURI().split("/")[1].equals(s)) {
+            if (s.equals(req.getRequestURI().split("/")[1])) {
                 filterChain.doFilter(req, resp);
                 return;
             }

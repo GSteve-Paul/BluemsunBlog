@@ -1,6 +1,8 @@
 package com.bluemsun.controller;
 
 import com.bluemsun.entity.JsonResponse;
+import com.bluemsun.interceptor.BanChecker;
+import com.bluemsun.interceptor.TokenChecker;
 import com.bluemsun.util.UriUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,12 +20,15 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/file")
+
 public class FileController
 {
     @Value("${file.upload.url}")
     private String uploadPath;
 
     @PostMapping("/upload")
+    @TokenChecker({"user","admin"})
+    @BanChecker
     public JsonResponse upload(@RequestParam MultipartFile[] files, HttpServletRequest req) {
         JsonResponse jsonResponse = new JsonResponse();
         int exceptionCnt = 0;

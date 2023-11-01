@@ -1,6 +1,5 @@
 package com.bluemsun.entity;
 
-import com.bluemsun.dao.ColumnDao;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,9 +18,15 @@ public class Column implements Serializable
     Timestamp updateTime;
     @Id
     Long id;
-    public Column(){}
+
+    public Column() {}
 
     public Column(String name) {
         this.name = name;
+    }
+
+    public Column(String name, Long id) {
+        this.name = name;
+        this.id = id;
     }
 }

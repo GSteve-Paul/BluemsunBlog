@@ -28,7 +28,7 @@ public class CORSFilter implements Filter
         解决跨域问题
          */
         //允许跨域的域名，*号为允许所有。解决跨域访问报错
-        resp.setHeader("Access-Control-Allow-Origin", req.getHeader("Origin"));
+        resp.setHeader("Access-Control-Allow-Origin", req.getHeader("*"));
         //服务器支持的所有头信息字段
         resp.setHeader("Access-Control-Allow-Headers",
                 "Origin," +
@@ -53,7 +53,7 @@ public class CORSFilter implements Filter
         //将Cookie发到服务端，需要指定Access-Control-Allow-Credentials为true;
         resp.setHeader("Access-Control-Allow-Credentials", "true");
         //首部字段 Access-Control-Allow-Methods 表明服务器允许客户端使用 POST, GET 和 OPTIONS 方法发起请求
-        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
         //设置过期时间，这里设置响应最大有效时间为 86400 秒，即24 小时
         resp.setHeader("Access-Control-Max-Age", "86400");
 

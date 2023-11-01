@@ -5,22 +5,41 @@
 <mapper namespace="com.bluemsun.dao.BlogUserCollectDao">
     <cache type="com.bluemsun.util.RedisMybatisCache"/>
     <insert id="insertBlogUserCollect">
-        INSERT INTO blog_user_collect  (blog_id, user_id) VALUE (#{blogId},#{userId})
+        INSERT INTO blog_user_collect (blog_id, user_id) VALUE (#{blogId}, #{userId})
     </insert>
+    <update id="updateBlogCollectAmount">
+        UPDATE blog
+        SET collect = collect + #{delta}
+        WHERE id = #{blogId}
+    </update>
     <delete id="removeBlogUserCollect">
-        DELETE FROM blog_user_collect WHERE blog_id = #{blogId} AND user_id = #{userId}
+        DELETE
+        FROM blog_user_collect
+        WHERE blog_id = #{blogId}
+          AND user_id = #{userId}
     </delete>
     <select id="checkBlogUserCollect"
             resultType="com.bluemsun.entity.BlogUserCollect">
-        SELECT * FROM blog_user_collect WHERE user_id = #{userId} AND blog_id = #{blogId}
+        SELECT *
+        FROM blog_user_collect
+        WHERE user_id = #{userId}
+          AND blog_id = #{blogId}
     </select>
     <select id="getBlogUserCollectAmount"
             resultType="java.lang.Integer">
-        SELECT count(id) FROM blog_user_collect WHERE user_id = #{userId}
+        SELECT count(id)
+        FROM blog_user_collect
+        WHERE user_id = #{userId}
     </select>
     <select id="getBlogUserCollectsInPage"
             resultType="com.bluemsun.entity.Blog">
-        SELECT blog_id AS id FROM blog_user_collect WHERE user_id = #{userId} LIMIT #{start},#{len}
+        SELECT blog_id AS id
+        FROM blog_user_collect
+        WHERE user_id = #{userId}
+        LIMIT #{start},#{len}
+    </select>
+    <select id="getBlogCollectAmount" resultType="java.lang.Integer">
+        SELECT collect FROM blog WHERE id = #{blogId}
     </select>
 
 

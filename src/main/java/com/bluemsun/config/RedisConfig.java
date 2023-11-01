@@ -4,6 +4,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
@@ -20,6 +21,9 @@ public class RedisConfig
 
     @Value("${redis.port}")
     private int port;
+
+    @Value("${redis.password}")
+    private String password;
 
     @Value("${redis.timeout}")
     private int timeout;
@@ -53,7 +57,7 @@ public class RedisConfig
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
         config.setHostName(host);
         config.setPort(port);
-        //config.setPassword(RedisPassword.of(password));
+        config.setPassword(RedisPassword.of(password));
         LettucePoolingClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
                 .commandTimeout(Duration.ofSeconds(timeout))
                 .poolConfig(getPoolConfig())
@@ -74,7 +78,7 @@ public class RedisConfig
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
         config.setHostName(host);
         config.setPort(port);
-        //config.setPassword(RedisPassword.of(password));
+        config.setPassword(RedisPassword.of(password));
         LettucePoolingClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
                 .commandTimeout(Duration.ofSeconds(timeout))
                 .poolConfig(getPoolConfig())
@@ -93,7 +97,7 @@ public class RedisConfig
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
         config.setHostName(host);
         config.setPort(port);
-        //config.setPassword(RedisPassword.of(password));
+        config.setPassword(RedisPassword.of(password));
         LettucePoolingClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
                 .commandTimeout(Duration.ofSeconds(timeout))
                 .poolConfig(getPoolConfig())
@@ -101,6 +105,25 @@ public class RedisConfig
         LettuceConnectionFactory factory = new LettuceConnectionFactory(config, clientConfig);
         // 设置使用的redis数据库
         factory.setDatabase(2);
+        // 重新初始化工厂
+        factory.afterPropertiesSet();
+        return new StringRedisTemplate(factory);
+    }
+
+    @Bean(name = "redisTemplate4")//like and collect
+    public StringRedisTemplate getRedisTemplate4() {
+        // 构建工厂对象
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(host);
+        config.setPort(port);
+        config.setPassword(RedisPassword.of(password));
+        LettucePoolingClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
+                .commandTimeout(Duration.ofSeconds(timeout))
+                .poolConfig(getPoolConfig())
+                .build();
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(config, clientConfig);
+        // 设置使用的redis数据库
+        factory.setDatabase(3);
         // 重新初始化工厂
         factory.afterPropertiesSet();
         return new StringRedisTemplate(factory);
