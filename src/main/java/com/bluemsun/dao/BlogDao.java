@@ -43,4 +43,8 @@ public interface BlogDao
 
     List<Blog> getUpBlog(int start, int len);
 
+    Integer getBlogsAdminAmount(Integer audit);
+
+    List<Blog> getBlogsAdmin(Integer start,Integer len, Integer audit);
+
 }

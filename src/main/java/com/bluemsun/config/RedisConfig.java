@@ -110,7 +110,7 @@ public class RedisConfig
         return new StringRedisTemplate(factory);
     }
 
-    @Bean(name = "redisTemplate4")//like and collect
+    @Bean(name = "redisTemplate4")//hot blog
     public StringRedisTemplate getRedisTemplate4() {
         // 构建工厂对象
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
@@ -124,6 +124,25 @@ public class RedisConfig
         LettuceConnectionFactory factory = new LettuceConnectionFactory(config, clientConfig);
         // 设置使用的redis数据库
         factory.setDatabase(3);
+        // 重新初始化工厂
+        factory.afterPropertiesSet();
+        return new StringRedisTemplate(factory);
+    }
+
+    @Bean(name = "redisTemplate5")//verification code
+    public StringRedisTemplate getRedisTemplate5() {
+        // 构建工厂对象
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(host);
+        config.setPort(port);
+        config.setPassword(RedisPassword.of(password));
+        LettucePoolingClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
+                .commandTimeout(Duration.ofSeconds(timeout))
+                .poolConfig(getPoolConfig())
+                .build();
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(config, clientConfig);
+        // 设置使用的redis数据库
+        factory.setDatabase(4);
         // 重新初始化工厂
         factory.afterPropertiesSet();
         return new StringRedisTemplate(factory);

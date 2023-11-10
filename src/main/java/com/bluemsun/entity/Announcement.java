@@ -8,27 +8,28 @@ import javax.persistence.Id;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-@Setter
 @Getter
+@Setter
 @Entity
-public class Comment implements Serializable
+public class Announcement implements Serializable
 {
-    @Id
-    Long id;
     String content;
     Timestamp createTime;
     Timestamp updateTime;
-    Long likes;
-    Long commentId;
-    Long blogId;
     Long userId;
-    Long replyTo;
+    @Id
+    Long id;
 
-    public Comment() {
-    }
+    public Announcement() {}
 
-    public Comment(String content, Long userId) {
+    public Announcement(String content, Long userId) {
         this.content = content;
         this.userId = userId;
+    }
+
+    public Announcement(String content, Long userId, Long id) {
+        this.content = content;
+        this.userId = userId;
+        this.id = id;
     }
 }

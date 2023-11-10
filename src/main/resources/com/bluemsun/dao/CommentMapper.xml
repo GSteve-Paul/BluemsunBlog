@@ -6,12 +6,12 @@
     <cache type="com.bluemsun.util.RedisMybatisCache"/>
     <insert id="insertComment">
         <if test="blogId != null">
-            INSERT INTO comment (content,user_id,blog_id) VALUE
-            (#{content},#{userId},#{blogId})
+            INSERT INTO comment (content,user_id,blog_id<if test="replyTo != null">,reply_to</if>) VALUE
+            (#{content},#{userId},#{blogId}<if test="replyTo != null">,#{replyTo}</if>)
         </if>
         <if test="commentId != null">
-            INSERT INTO comment (content, user_id, comment_id) VALUE
-            (#{content},#{userId},#{commentId})
+            INSERT INTO comment (content, user_id, comment_id<if test="replyTo != null">,reply_to</if>) VALUE
+            (#{content},#{userId},#{commentId}<if test="replyTo != null">,#{replyTo}</if>)
         </if>
     </insert>
     <delete id="deleteComment">
@@ -52,8 +52,7 @@
                 1 = 1
             </otherwise>
         </choose>
-        ORDER BY update_time DESC
-        LIMIT #{start},#{len}
+        ORDER BY update_time DESC LIMIT #{start},#{len}
     </select>
 
 

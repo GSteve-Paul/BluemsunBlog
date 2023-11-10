@@ -1,10 +1,9 @@
 package com.bluemsun.service;
 
 import com.bluemsun.dao.BlogDao;
-import com.bluemsun.dao.BlogUserCollectDao;
-import com.bluemsun.dao.BlogUserLikeDao;
 import com.bluemsun.entity.Blog;
 import com.bluemsun.entity.Column;
+import com.bluemsun.entity.Page;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -109,9 +108,13 @@ public class HotBlogRedisService
         redisTemplate4.opsForZSet().incrementScore(AllColumnLikeKey, blogId.toString(), UpLike);
     }
 
-    public List<Blog> getPrefix(Integer amount, Long columnId) {
+    public Long getAmountOfColumn(Long columnId) {
+        return redisTemplate4.opsForZSet().size(getColumnLikeKey(columnId));
+    }
+
+    public List<Blog> getPageOfColumn(Page<Blog> page, Long columnId) {
         List<Blog> blogList = new ArrayList<>();
-        Set<String> set = redisTemplate4.opsForZSet().reverseRange(getColumnLikeKey(columnId), 0, amount - 1);
+        Set<String> set = redisTemplate4.opsForZSet().reverseRange(getColumnLikeKey(columnId), page.getStartIndex(), page.getStartIndex() - 1 + page.getPageSize());
         for (String blogIdString : set) {
             Long blogId = Long.parseLong(blogIdString);
             Blog blog = blogDao.getBlog(blogId,Blog.AUDITED,null);

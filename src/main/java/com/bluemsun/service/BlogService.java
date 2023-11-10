@@ -2,13 +2,12 @@ package com.bluemsun.service;
 
 import com.bluemsun.dao.BlogDao;
 import com.bluemsun.dao.BlogUserCollectDao;
-import com.bluemsun.dao.BlogUserLikeDao;
+import com.bluemsun.dao.FileDao;
 import com.bluemsun.entity.*;
 import com.bluemsun.util.JWTUtil;
 import com.bluemsun.util.UriUtil;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +34,8 @@ public class BlogService
     HotBlogRedisService hotBlogRedisService;
     @Resource
     LikeBlogRedisService likeBlogRedisService;
+    @Resource
+    FileDao fileDao;
 
     public Boolean isExist(Long blogId) {
         int val = blogDao.isExist(blogId);
@@ -42,7 +43,7 @@ public class BlogService
     }
 
     @Transactional
-    public void saveBlog(Blog blog, List<Long> columnIds, String token) {
+    public void saveBlog(Blog blog, List<Long> columnIds, String token, List<String> fileNames) {
         //save the content into a new file
         blog.setUserId(userService.getIdFromToken(token));
         String title = blog.getTitle();
@@ -72,11 +73,14 @@ public class BlogService
         Long blogId = blog.getId();
         //insert the blog_column relations into the table
         blogDao.insertBlogColumn(blogId, columnIds);
-        //
+        //insert the files into the table
+        if(fileNames != null && !fileNames.isEmpty()) {
+            fileDao.addFile(fileNames, blogId);
+        }
     }
 
     @Transactional
-    public void editBlog(Blog blog, List<Long> columnIds, String token) {
+    public void editBlog(Blog blog, List<Long> columnIds, String token, List<String> fileNames) {
         //check uuid
         Blog trueBlog = blogDao.getBlog(blog.getId(), null, null);
         long tokenId = userService.getIdFromToken(token);
@@ -107,6 +111,11 @@ public class BlogService
         hotBlogRedisService.OutOfDisplay(blog.getId());
         blogDao.deleteBlogColumn(blog.getId());
         blogDao.insertBlogColumn(blog.getId(), columnIds);
+        //edit the file
+        fileDao.removeFile(blog.getId());
+        if(fileNames != null && !fileNames.isEmpty()) {
+            fileDao.addFile(fileNames, blog.getId());
+        }
         //make the blog unaudited
         blogDao.updateBlogAudit(Blog.NOTAUDITED, blog.getId());
     }
@@ -263,7 +272,19 @@ public class BlogService
                 , page.getPageSize());
     }
 
-    public List<Blog> getBlogsLikeOrder(Integer amount, Long columnId) {
-        return hotBlogRedisService.getPrefix(amount,columnId);
+    public void getBlogsLikeOrder(Page<Blog> page, Long columnId) {
+        page.list = hotBlogRedisService.getPageOfColumn(page,columnId);
+    }
+
+    public Long getBlogsLikeOrderAmount(Long columnId) {
+        return hotBlogRedisService.getAmountOfColumn(columnId);
+    }
+
+    public Integer getBlogsAdminAmount(Integer audit) {
+        return blogDao.getBlogsAdminAmount(audit);
+    }
+
+    public void getBLogsAdmin(Page<Blog> page,Integer audit) {
+        page.list = blogDao.getBlogsAdmin(page.getStartIndex(),page.getPageSize(),audit);
     }
 }

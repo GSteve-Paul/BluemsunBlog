@@ -20,14 +20,15 @@
     </select>
     <insert id="insertBlog" parameterType="com.bluemsun.entity.Blog"
             useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO blog (content, user_id, introduction, title)
-        VALUES (#{content}, #{userId}, #{introduction}, #{title})
+        INSERT INTO blog (content, user_id, introduction, title, photo)
+        VALUES (#{content}, #{userId}, #{introduction}, #{title}, #{photo})
     </insert>
     <update id="updateBlogDetail" parameterType="com.bluemsun.entity.Blog">
         UPDATE blog
         SET content      = #{content},
             introduction = #{introduction},
-            title        = #{title}
+            title        = #{title},
+            photo        = #{photo}
         WHERE id = #{id}
     </update>
     <update id="updateBlogAudit">
@@ -105,6 +106,12 @@
         WHERE up = 1
           AND audit = 1
         LIMIT #{start},#{len}
+    </select>
+    <select id="getBlogsAdminAmount" resultType="java.lang.Integer">
+        SELECT count(id) FROM blog WHERE audit = #{audit}
+    </select>
+    <select id="getBlogsAdmin" resultType="com.bluemsun.entity.Blog">
+        SELECT * FROM blog WHERE audit = #{audit} LIMIT #{start},#{len}
     </select>
 
 </mapper>

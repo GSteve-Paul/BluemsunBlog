@@ -10,6 +10,7 @@ import com.bluemsun.entity.User;
 import com.bluemsun.util.IPasswordChecker;
 import com.bluemsun.util.JWTUtil;
 import com.bluemsun.util.MD5Util;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -36,7 +37,7 @@ public class UserService
         return getIdFromUuid(jwtUtil.getUuid(token));
     }
 
-    public Long registerUser(String name, String pwd, Long phone, Integer admin) {
+    public Long registerUser(String name, String pwd, String phone, Integer admin) {
         String encryPwd = MD5Util.encryMD5(pwd);
         User user = new User(phone, name, encryPwd);
         user.setAdmin(admin);
@@ -104,6 +105,24 @@ public class UserService
         }
         String encryNewPwd = MD5Util.encryMD5(newPwd);
         userDao.updatePwd(encryNewPwd, userId);
+        return 0;
+    }
+
+    public Integer updateForgetPwd(String newPwd,Long userId) {
+        if (IPasswordChecker.isEmpty(newPwd)) {
+            return 2;
+        }
+        if (IPasswordChecker.isSpace(newPwd)) {
+            return 3;
+        }
+        if (IPasswordChecker.isTooLong(newPwd)) {
+            return 4;
+        }
+        if (!IPasswordChecker.isComplex(newPwd)) {
+            return 5;
+        }
+        String encryNewPwd = MD5Util.encryMD5(newPwd);
+        userDao.updatePwd(encryNewPwd,userId);
         return 0;
     }
 

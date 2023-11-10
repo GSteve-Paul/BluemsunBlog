@@ -4,6 +4,7 @@ import com.bluemsun.entity.*;
 import com.bluemsun.interceptor.BanChecker;
 import com.bluemsun.interceptor.TokenChecker;
 import com.bluemsun.service.BlogService;
+import com.bluemsun.service.FileService;
 import com.bluemsun.service.LikeBlogRedisService;
 import com.bluemsun.service.UserService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -15,7 +16,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/blog")
@@ -25,6 +29,8 @@ public class BlogController
     BlogService blogService;
     @Resource
     UserService userService;
+    @Resource
+    FileService fileService;
 
 
     @PostMapping("/blog")
@@ -37,18 +43,25 @@ public class BlogController
         JsonNode jsonNode = objectMapper.readTree(is);
         JsonNode blogNode = jsonNode.get("blog");
         JsonNode columnIdsNode = jsonNode.get("columnIds");
+        JsonNode fileNamesNode = jsonNode.get("fileNames");
         Blog blog = objectMapper.convertValue(blogNode, Blog.class);
         List columnIds = objectMapper.readerFor(new TypeReference<List<Long>>() {}).readValue(columnIdsNode);
-        blogService.saveBlog(blog, columnIds, token);
+        List<String> fileNames = objectMapper.convertValue(fileNamesNode,List.class);
+        blogService.saveBlog(blog, columnIds, token, fileNames);
         return new JsonResponse(2000, "save blog successfully", null);
     }
 
     @GetMapping("/blog")
     public JsonResponse getBlog(@RequestParam Long blogId, HttpServletRequest request) {
         String token = request.getHeader("token");
-        return new JsonResponse(2000,
-                "get blog successfully",
-                blogService.getBlog(blogId, token));
+        Map<String,Object> mp = new HashMap<>();
+        mp.put("blog",blogService.getBlog(blogId, token));
+        List<String> fileNames = new ArrayList<>();
+        for(Ffile ffile:fileService.getFiles(blogId) ) {
+            fileNames.add(ffile.getName());
+        }
+        mp.put("files",fileNames);
+        return new JsonResponse(2000, "get blog successfully",mp);
     }
 
     @PutMapping("/blog")
@@ -61,9 +74,11 @@ public class BlogController
         JsonNode jsonNode = objectMapper.readTree(is);
         JsonNode blogNode = jsonNode.get("blog");
         JsonNode columnIdsNode = jsonNode.get("columnIds");
+        JsonNode fileNamesNode = jsonNode.get("fileNames");
         List columnIds = objectMapper.readerFor(new TypeReference<List<Long>>() {}).readValue(columnIdsNode);
         Blog blog = objectMapper.convertValue(blogNode, Blog.class);
-        blogService.editBlog(blog, columnIds, token);
+        List<String> fileNames = objectMapper.convertValue(fileNamesNode, List.class);
+        blogService.editBlog(blog, columnIds, token, fileNames);
         return new JsonResponse(2000,
                 "update blog successfully",
                 null);
@@ -194,22 +209,28 @@ public class BlogController
         return new JsonResponse(2000, "collect");
     }
 
+    @GetMapping("/order/like")
+    public JsonResponse getBlogsLikeOrderAmount(@RequestParam Long columnId) {
+        return new JsonResponse(2000, "get amount successfully", blogService.getBlogsLikeOrderAmount(columnId));
+    }
+
     @PostMapping("/order/like")
     public JsonResponse getBlogsLikeOrder(HttpServletRequest request) throws IOException {
         InputStream is = request.getInputStream();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(is);
-        Integer amount = jsonNode.get("amount").asInt();
+        Page<Blog> page = objectMapper.convertValue(jsonNode.get("page"), Page.class);
+        page.init();
         Long columnId = jsonNode.get("columnId").asLong();
-        List<Blog> blogList = blogService.getBlogsLikeOrder(amount, columnId);
-        return new JsonResponse(2000, "get blogs in like order successfully", blogList);
+        blogService.getBlogsLikeOrder(page, columnId);
+        return new JsonResponse(2000, "get blogs in like order successfully", page.list);
     }
 
     @GetMapping("/order/time")
     @TokenChecker({"admin", "user"})
     public JsonResponse getBlogsTimeOrderAmount(@RequestParam(required = false) Long userId
-                                                , @RequestParam(required = false) String key
-                                                , HttpServletRequest request) {
+            , @RequestParam(required = false) String key
+            , HttpServletRequest request) {
         String token = request.getHeader("token");
         Integer val = blogService.getBlogsTimeOrderAmount(userId, token, key);
         return new JsonResponse(2000, "get the amount of blogs in time order successfully", val);
@@ -228,5 +249,22 @@ public class BlogController
         String key = objectMapper.convertValue(jsonNode.get("key"), String.class);
         blogService.getBlogsTimeOrderPage(page, userId, token, key);
         return new JsonResponse(2000, "get blogs in time order successfully", page.list);
+    }
+
+    @GetMapping("/order/audit")
+    public JsonResponse getBlogsAuditOrderAmount(@RequestParam Integer audit) {
+        return new JsonResponse(2000, "get amount successfully", blogService.getBlogsAdminAmount(audit));
+    }
+
+    @PostMapping("/order/audit")
+    public JsonResponse getBlogsAuditOrder(HttpServletRequest request) throws IOException {
+        InputStream is = request.getInputStream();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(is);
+        Integer audit = objectMapper.convertValue(jsonNode.get("audit"), Integer.class);
+        Page<Blog> page = objectMapper.convertValue(jsonNode.get("page"), Page.class);
+        page.init();
+        blogService.getBLogsAdmin(page, audit);
+        return new JsonResponse(2000, "get blogs successfully", page.list);
     }
 }

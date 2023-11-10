@@ -75,6 +75,7 @@
                id,
                create_time
         FROM user
+        ORDER BY admin DESC
         LIMIT #{start},#{len}
     </select>
 </mapper>

@@ -19,7 +19,7 @@ public class User implements Serializable
     String name;
     String pwd;
     String photo;
-    Long phone;
+    String phone;
     Integer admin;
     Integer banned;
     Long uuid;
@@ -38,7 +38,7 @@ public class User implements Serializable
     }
 
     //only for register
-    public User(Long phone, String name, String pwd) {
+    public User(String phone, String name, String pwd) {
         this.phone = phone;
         this.name = name;
         this.pwd = pwd;
