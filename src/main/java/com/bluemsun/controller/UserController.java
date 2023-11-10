@@ -180,40 +180,37 @@ public class UserController
     }
 
     @GetMapping("/forget")
-    @TokenChecker({"admin", "user"})
-    public JsonResponse sendVerificationCode(HttpServletRequest request) {
-        String token = request.getHeader("token");
-        Long userId = userService.getIdFromToken(token);
-        User user = userService.getInfo(userId, false);
+    public JsonResponse sendVerificationCode(@RequestParam Long uuid) {
+        Long userId = userService.getIdFromUuid(uuid);
+        if(userId == null) {
+            return new JsonResponse(2002,"wrong uuid",null);
+        }
+        User user = userService.getInfo(userId,false);
         String email = user.getPhone();
         if(email == null) {
             return new JsonResponse(2001,"no email address",null);
         }
-        String code = verificationCodeRedisService.getVerificationCode(userId);
+        String code = verificationCodeRedisService.getVerificationCode(uuid);
         mailService.sendVerificationCode(email, code);
         return new JsonResponse(2000, "send verification code successfully", null);
     }
 
     @PutMapping("/forget")
-    @TokenChecker({"admin", "user"})
     public JsonResponse checkVerificationCodeAndPutPwd(HttpServletRequest request) throws IOException {
         InputStream is = request.getInputStream();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(is);
         String code = objectMapper.convertValue(jsonNode.get("code"), String.class);
         String newPwd = objectMapper.convertValue(jsonNode.get("newPwd"), String.class);
-        String token = request.getHeader("token");
-        Long userId = userService.getIdFromToken(token);
-        boolean correct = verificationCodeRedisService.checkVerificationCode(code, userId);
+        Long uuid = objectMapper.convertValue(jsonNode.get("uuid"),Long.class);
+        boolean correct = verificationCodeRedisService.checkVerificationCode(code, uuid);
         if (!correct) {
             return new JsonResponse(2010, "Wrong Code", null);
         }
+        Long userId = userService.getIdFromUuid(uuid);
         int val = userService.updateForgetPwd(newPwd,userId);
         switch (val) {
-            case 0: {
-                userService.logout(token);
-                return new JsonResponse(2000, "update the password successfully");
-            }
+            case 0: return new JsonResponse(2000, "update the password successfully");
             case 2: return new JsonResponse(2002, "empty password");
             case 3: return new JsonResponse(2003, "spaces exist in password");
             case 4: return new JsonResponse(2004, "too long password");

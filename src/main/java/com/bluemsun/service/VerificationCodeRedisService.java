@@ -13,7 +13,7 @@ public class VerificationCodeRedisService
     @Resource
     StringRedisTemplate redisTemplate5;
 
-    public String getVerificationCode(Long userId) {
+    public String getVerificationCode(Long uuid) {
         //get the code
         Integer code = new Random().nextInt() % 10000;
         String strCode = code.toString();
@@ -24,16 +24,16 @@ public class VerificationCodeRedisService
         }
         strCode = pre0.toString() + strCode;
         //save in redis
-        redisTemplate5.opsForValue().set(strCode,userId.toString(),5, TimeUnit.MINUTES);
+        redisTemplate5.opsForValue().set(strCode,uuid.toString(),5, TimeUnit.MINUTES);
         return strCode;
     }
 
-    public Boolean checkVerificationCode(String code,Long userId) {
+    public Boolean checkVerificationCode(String code,Long uuid) {
         String val = redisTemplate5.opsForValue().get(code);
         if(val == null) {
             return false;
         }
-        if(!val.equals(userId.toString())) {
+        if(!val.equals(uuid.toString())) {
             return false;
         }
         redisTemplate5.delete(code);

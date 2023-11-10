@@ -27,7 +27,7 @@ public class AnnouncementServer
         webSocketSet.add(this);
         log.info("session " + session.getId() + " connected" );
         try {
-            sendMessage("connection success");
+            sendMessage("");
         } catch (IOException e) {
             e.printStackTrace();
         }
