@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Slf4j
-@WebFilter("/*")
-@Order(1)
+//@WebFilter("/*")
+//@Order(1)
 public class CORSFilter implements Filter
 {
     @Override
@@ -61,7 +61,11 @@ public class CORSFilter implements Filter
         解决输入流问题req.body
          */
         req.setCharacterEncoding("UTF-8");
-        filterChain.doFilter(req, resp);
+        if ("OPTIONS".equals(req.getMethod())) {
+            resp.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            filterChain.doFilter(req, resp);
+        }
     }
 
     @Override

@@ -15,7 +15,7 @@ public class VerificationCodeRedisService
 
     public String getVerificationCode(Long uuid) {
         //get the code
-        Integer code = new Random().nextInt() % 10000;
+        Integer code = Math.abs(new Random().nextInt() % 10000);
         String strCode = code.toString();
         int len = strCode.length();
         StringBuffer pre0 = new StringBuffer();
